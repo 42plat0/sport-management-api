@@ -2,6 +2,7 @@ const fs = require("fs");
 const {getData} = require("../helpers/getFileData");
 const {getSportJson, getPlayerJson } = require("../helpers/getSportJson");
 const {updateObj} = require("../helpers/updateObj");
+const {sql} = require("../db.js");
 
 const validKeys = {
 	"player": ["name", "age", "position"],
@@ -10,6 +11,43 @@ const validKeys = {
 
 let sports = getData();
 
+const getSports = async () =>{
+    const sportS = sql`
+        SELECT * FROM sports;
+    `
+    return sportS;
+}
+
+const insertSport = async (sport) => {
+    const [newSport] = await sql`
+        INSERT INTO sports (name, popularityRank)
+        VALUES (${sport.name}, ${sport.popularityRank})
+        RETURNING *;
+    `
+    return newSport;
+}
+
+const fetchSport = async (sId) => {
+    const [sport] = await sql`
+        SELECT * FROM sports
+        WHERE id = ${sId};
+    `
+    return sport;
+}
+
+const updateSportDb = async (sId, updatedSport) => {
+
+    const [sport] = await sql`
+        UPDATE sports
+        SET
+            name = ${updatedSport.name},
+            popularityRank = ${updatedSport.popularityRank}
+        WHERE id = ${sId}
+        RETURNING *;
+    `
+
+    return sport;
+}
 const isCorrectInp = (inp, validKeys) =>{
 	// Input:
 	// 		inp object
@@ -148,5 +186,5 @@ const writeFile = (data) => {
 }
 
 
-module.exports = {sports, add, upd, del};
+module.exports = {sports, add, upd, del, getSports, insertSport, fetchSport, updateSportDb };
 

@@ -56,7 +56,7 @@ describe('Sports Management API', () => {
         .put(`/api/v1/sports/${sportId}`)
         .send(updatedSport)
         .expect(200);
-
+      console.log(res.body.data)
       expect(res.body.data.name).toBe(updatedSport.name);
     });
 

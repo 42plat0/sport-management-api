@@ -2,100 +2,94 @@ const success = 0,
 	  error = 1;
 
 const {getObjIdxByAttribute} = require("../helpers/filterList.js");
-let { sports, add, upd, del } = require("../models/sportModel.js");
+let {getSports, insertSport, fetchSport, updateSportDb } = require("../models/sportModel.js");
 
-exports.getSports = (req, res) => {
-	if (sports.length)
+exports.getSports = async (req, res) => {
+    const sports = await getSports();
+	if (!sports)
 	{
-		res.status(200).json({
-			status: "success",
-			data: sports
-		});
-		return;
-	}
+        res.status(404).json({
+            status: "failed",
+            message: "No sports were found"
+        });
+        return;
+    }
 
-	res.status(404).json({
-		status: "failed",
-		message: "No sports were found"
-	});
+    res.status(200).json({
+        status: "success",
+        data: sports
+    });
 }
 
-exports.addSport = (req, res) => {
-	const {name, popularityRank} = req.body;
+exports.addSport = async (req, res) => {
+    const newSport = req.body;
 
-	if (name && popularityRank)
-	{
-		const newSport =  {"name": name, "popularityRank": popularityRank};
-		if (add(newSport) === success){
-			res.status(201).json({
-				status: "success",
-				result_count: sports.length,
-				data: sports[sports.length - 1]
-			});
-			return;
-		}
-		
-		// Couldn't insert sport
-		res.status(500).json({
-			status: "failed",
-			message: "Unable to add sport"
-		})
-		return;
-	}
-	// Invalid input
-	res.status(400).json({
-		status: "failed",
-		message: "Name or popularityRank was not provided"
-	})
+    // Invalid input
+    if (!newSport)
+    {
+        res.status(400).json({
+            status: "failed",
+            message: "Name or popularityRank was not provided"
+        })
+        return;
+    }
+
+    const sport = await insertSport(newSport);
+
+    // Couldn't insert sport
+    if (!sport)
+    {
+        res.status(500).json({
+            status: "failed",
+            message: "Unable to add sport"
+        })
+        return;
+    }
+
+    res.status(201).json({
+        status: "success",
+        data: sport
+    });
 }
 
-exports.getSportById = (req, res) => {
-	const {sId : id} = req.params;
-	const foundSportIdx = getObjIdxByAttribute(sports, "id", +id); 
-	
-	if (foundSportIdx >= 0){ 	// -1 means not found
-		const sport = sports[foundSportIdx];
-		res.status(200).json({
-			status: "success",
-			data: sport
-		});
-		return;
-	}
-
-	res.status(404).json({
-		status: "failed",
-		message: "Sport by specified id not found"
-	});
-
+exports.getSportById = async (req, res) => {
+	const {sId} = req.params;
+        
+    const sport = await fetchSport(sId);
+    
+    // Sport not found
+    if (!sport){
+        res.status(404).json({
+            status: "failed",
+            message: "Sport by specified id not found"
+        });
+        return;
+    }
+    
+    res.status(200).json({
+        status: "success",
+        data: sport
+    });
 }
 
-exports.updateSport = (req, res) => {
+exports.updateSport = async (req, res) => {
 	const newSport = req.body;
-	const {sId: id} = req.params;
-	
-	const foundSportIdx = getObjIdxByAttribute(sports, "id", +id); 
-	
-	if (foundSportIdx >= 0){ 	// -1 means not found
-		const isUpdated = upd(foundSportIdx, newSport);
-		if (isUpdated === success){
-			res.status(200).json({
-				status: "success",
-				data: sports[foundSportIdx] 
-			});
-			return;
-		}
-		
-		res.status(500).json({
-			status: "failed",
-			message: "Unable to update sport of specified id"
-		})
+	const {sId} = req.params;
+    
+    const sport = await updateSportDb(sId, newSport);
 
-	}
+    if (!sport){
+        res.status(404).json({
+            status: "failed",
+            message: "Sport by specified id not found"
+        });
+        return;
+    }
 
-	res.status(404).json({
-		status: "failed",
-		message: "Sport by specified id not found"
-	});
+    res.status(200).json({
+        status:"success",
+        data: sport 
+    })
 }
 
 exports.delSport = (req, res) => {
