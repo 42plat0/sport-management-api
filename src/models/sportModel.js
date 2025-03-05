@@ -45,9 +45,9 @@ const updateSportDb = async (sId, updatedSport) => {
         WHERE id = ${sId}
         RETURNING *;
     `
-
     return sport;
 }
+
 const isCorrectInp = (inp, validKeys) =>{
 	// Input:
 	// 		inp object

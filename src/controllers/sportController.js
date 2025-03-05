@@ -1,125 +1,117 @@
-const success = 0,
-	  error = 1;
-
 const {getObjIdxByAttribute} = require("../helpers/filterList.js");
 let {getSports, insertSport, fetchSport, updateSportDb } = require("../models/sportModel.js");
+const AppError = require("../utilities/appError");
 
-exports.getSports = async (req, res) => {
-    const sports = await getSports();
-	if (!sports)
-	{
-        res.status(404).json({
-            status: "failed",
-            message: "No sports were found"
+// Get all sports
+exports.getSports = async (req, res, next) => {
+    try {
+        const sports = await getSports();
+
+        if (!sports.length)
+        {
+            throw new AppError("No sports were found", 404);
+        }
+
+        res.status(200).json({
+            status: "success",
+            data: sports
         });
-        return;
-    }
-
-    res.status(200).json({
-        status: "success",
-        data: sports
-    });
-}
-
-exports.addSport = async (req, res) => {
-    const newSport = req.body;
-
-    // Invalid input
-    if (!newSport)
-    {
-        res.status(400).json({
-            status: "failed",
-            message: "Name or popularityRank was not provided"
-        })
-        return;
-    }
-
-    const sport = await insertSport(newSport);
-
-    // Couldn't insert sport
-    if (!sport)
-    {
-        res.status(500).json({
-            status: "failed",
-            message: "Unable to add sport"
-        })
-        return;
-    }
-
-    res.status(201).json({
-        status: "success",
-        data: sport
-    });
-}
-
-exports.getSportById = async (req, res) => {
-	const {sId} = req.params;
         
-    const sport = await fetchSport(sId);
-    
-    // Sport not found
-    if (!sport){
-        res.status(404).json({
-            status: "failed",
-            message: "Sport by specified id not found"
-        });
-        return;
+    } catch (error) {
+       next(error); 
     }
-    
-    res.status(200).json({
-        status: "success",
-        data: sport
-    });
 }
 
-exports.updateSport = async (req, res) => {
-	const newSport = req.body;
-	const {sId} = req.params;
-    
-    const sport = await updateSportDb(sId, newSport);
+// Add new sport
+exports.addSport = async (req, res, next) => {
+    try {
 
-    if (!sport){
-        res.status(404).json({
-            status: "failed",
-            message: "Sport by specified id not found"
+        const newSport = req.body;
+
+        // Invalid input
+        if (!newSport)
+        {
+            throw new AppError("Name or popularity rank was not provided", 400);
+        }
+
+        const sport = await insertSport(newSport);
+
+        // Couldn't insert sport
+        if (!sport)
+        {
+            throw new AppError("Unable to add sport", 500);
+        }
+
+        res.status(201).json({
+            status: "success",
+            data: sport
         });
-        return;
+
+    } catch (error) {
+       next(error); 
+    }
+}
+
+exports.getSportById = async (req, res, next) => {
+    try { 
+        const {sId} = req.params;
+            
+        const sport = await fetchSport(sId);
+        
+        // Sport not found
+        if (!sport){
+            throw new AppError("Sport by specified id not found", 404);
+        }
+        
+        res.status(200).json({
+            status: "success",
+            data: sport
+        });
+    }
+    catch (error) {
+       next(error); 
     }
 
-    res.status(200).json({
-        status:"success",
-        data: sport 
-    })
+}
+
+exports.updateSport = async (req, res, next) => {
+    try {
+        const newSport = req.body;
+        const {sId} = req.params;
+
+        const sport = await updateSportDb(sId, newSport);
+
+        if (!sport){
+            throw new AppError("Sport by specified id not found", 404);
+        }
+
+        res.status(200).json({
+            status:"success",
+            data: sport 
+        })
+        
+    } catch (error) {
+        next(error);
+    }
 }
 
 exports.delSport = (req, res) => {
-	const {sId: id} = req.params;
-	
-	const foundSportIdx = getObjIdxByAttribute(sports, "id", +id); 
-	
-	// FOund
-	if (foundSportIdx >= 0){ 	// -1 means not found
-		const isDeleted = del(foundSportIdx);
+    try {    
+        const {sId: id} = req.params;
 
-		if (isDeleted === success){
-			res.status(200).json({
-				status: "success",
-				data: null
-			});
-			return;
-		}
-		
-		res.status(500).json({
-			status: "failed",
-			message: "Unable to delete specified sport"
-		})
+        res.status(200).json({
+            status: "success",
+            data: null
+        });
 
-	}
+        res.status(404).json({
+            status: "failed",
+            message: "Sport by specified id not found"
+        });
 
-	res.status(404).json({
-		status: "failed",
-		message: "Sport by specified id not found"
-	});
+    } catch (error) {
+        next(error); 
+    }
 }
 
 exports.getSportPlayers = (req, res) => {
@@ -233,5 +225,4 @@ exports.delSportPlayer = (req, res) => {
 		status: "failed",
 		message: "Sport or player by specified id not found"
 	});
-
 }
