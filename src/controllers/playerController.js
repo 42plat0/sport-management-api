@@ -2,6 +2,25 @@ const { insertPlayer, fetchPlayer } = require("../models/playerModel");
 const { fetchSport } = require("../models/sportModel");
 const AppError = require("../utilities/appError");
 
+exports.getSportPlayers = async (req, res, next) => {
+    try {
+        const {sId} = req.params;
+        
+        const sport = await fetchSport(sId);
+
+        if (!sport)
+            throw new AppError("Sport with specified id was not found", 404);
+
+        res.status(200).json({
+            status: "success",
+            data: sport.players
+        })
+        
+    } catch (error) {
+        next(error); 
+    }
+}
+
 exports.getPlayerById = async (req, res, next) =>{
     try {
         const {pId} = req.params;
