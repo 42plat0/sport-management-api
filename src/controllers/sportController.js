@@ -27,19 +27,10 @@ exports.addSport = async (req, res, next) => {
 
         const newSport = req.body;
 
-        // Invalid input
-        if (!newSport)
-        {
-            throw new AppError("Name or popularity rank was not provided", 400);
-        }
-
         const sport = await insertSport(newSport);
 
-        // Couldn't insert sport
-        if (!sport)
-        {
-            throw new AppError("Unable to add sport", 500);
-        }
+        if (!player)
+            throw new AppError("Couldn't insert player", 500);
 
         res.status(201).json({
             status: "success",
