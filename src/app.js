@@ -3,18 +3,18 @@ const app = express();
 
 // Router
 const sRouter = require("./routes/sportRouter");
+const plRouter = require("./routes/playerRouter");
 
 // Custom err
 const AppError = require("./utilities/appError");
 
 app.use(express.json())
 
-app.use("/api/v1/sports", sRouter);
+app.use("/api/v1/sports", sRouter, plRouter);
 
 // Not found paths
 app.use("*", (req, res, next) =>{
     const err = new AppError(`Can't find ${req.originalUrl}`, 404);
-
     next(err);
 });
 
@@ -26,7 +26,8 @@ app.use((err, req, res, next) => {
 
     res.status(errStatus).json({
         status : errStatusMsg,
-        message: errMessage
+        message: errMessage,
+        stack: err.stack
     })
 })
 

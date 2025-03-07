@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS sports(
 );
 
 CREATE TABLE IF NOT EXISTS players(
-    id INT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(60) NOT NULL,
     age INT,
     position VARCHAR(30),
