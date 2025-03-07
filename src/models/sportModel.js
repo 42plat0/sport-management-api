@@ -12,9 +12,17 @@ const validKeys = {
 let sports = getData();
 
 const getSports = async () =>{
-    const sportS = sql`
-        SELECT * FROM sports;
+    const sportS = await sql`
+        SELECT s.id, 
+               s.name, 
+               s.popularityRank,
+               json_agg(p.*) AS players
+        FROM sports AS s
+        JOIN players AS p 
+               ON s.id = p.sport_id
+        GROUP BY s.id;
     `
+    
     return sportS;
 }
 
