@@ -18,9 +18,10 @@ const getSports = async () =>{
                s.popularityRank,
                json_agg(p.*) AS players
         FROM sports AS s
-        JOIN players AS p 
+        LEFT JOIN players AS p 
                ON s.id = p.sport_id
-        GROUP BY s.id;
+        GROUP BY s.id
+        ORDER BY s.id ASC;
     `
     
     return sportS;
@@ -37,8 +38,15 @@ const insertSport = async (sport) => {
 
 const fetchSport = async (sId) => {
     const [sport] = await sql`
-        SELECT * FROM sports
-        WHERE id = ${sId};
+        SELECT s.id, 
+               s.name, 
+               s.popularityRank,
+               json_agg(p.*) AS players
+        FROM sports AS s
+        LEFT JOIN players AS p 
+               ON s.id = p.sport_id
+        WHERE s.id = ${sId}
+        GROUP BY s.id;
     `
     return sport;
 }
