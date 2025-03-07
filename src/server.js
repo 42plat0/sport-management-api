@@ -9,7 +9,6 @@ const {sql, testDbConn} = require("./db.js");
             console.log("Server started at port", process.env.PORT);
         })
     } catch (error) {
-        console.log("hey");
         process.exit(1); 
     }
 })()
