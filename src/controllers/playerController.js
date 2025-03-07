@@ -1,4 +1,4 @@
-const { insertPlayer, fetchPlayer } = require("../models/playerModel");
+const { insertPlayer, fetchPlayer, updatePlayer, deletePlayerDb } = require("../models/playerModel");
 const { fetchSport } = require("../models/sportModel");
 const AppError = require("../utilities/appError");
 
@@ -60,5 +60,52 @@ exports.addSportPlayer = async (req, res, next) => {
         })
     } catch (error) {
        next(error); 
+    }
+}
+
+exports.updateSportPlayer = async(req, res, next) => {
+    try {
+        const {sId, pId} = req.params;
+        const updatedPlayer = req.body;
+
+        if (!await fetchSport(sId))
+            throw new AppError("Sport by specified id was not found", 404);
+
+        const player = await fetchPlayer(pId);
+
+        if (!player)
+            throw new AppError("Player by specified id was not found", 404);
+        
+        const newPlayer = await updatePlayer(pId, updatedPlayer);
+
+        res.status(200).json({
+            status: "success",
+            data: newPlayer
+        })
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.removePlayer = async (req, res, next) => {
+    try {
+        const {sId, pId} = req.params;
+
+        if (!await fetchSport(sId))
+            throw new AppError("Sport by specified id was not found", 404);
+
+        const player = await deletePlayerDb(pId);
+
+        if (!player)
+            throw new AppError("Player by specified id was not found", 404);
+
+        res.status(200).json({
+            status: "success",
+            data: null
+        })
+
+    } catch (error) {
+        next(error);
     }
 }

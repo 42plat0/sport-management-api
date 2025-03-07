@@ -20,3 +20,26 @@ exports.fetchPlayer = async (pId) => {
     `
     return player;
 }
+
+exports.updatePlayer = async (pId, updatedPlayer) => {
+    const cols = Object.keys(updatedPlayer)
+
+    const [player] = await sql`
+        UPDATE players SET ${
+            sql(updatedPlayer, cols)
+        }
+        WHERE id = ${pId}
+        RETURNING *;
+    `
+    
+    return player;
+} 
+
+exports.deletePlayerDb = async (pId) =>{
+    const [player] = await sql`
+        DELETE FROM players
+        WHERE id = ${pId}
+        RETURNING *;
+    `
+    return player;
+}

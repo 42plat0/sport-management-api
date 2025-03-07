@@ -4,7 +4,9 @@ const router = require("express").Router();
 const {
     addSportPlayer,
     getPlayerById,
-    getSportPlayers
+    getSportPlayers,
+    updateSportPlayer,
+    removePlayer
 } = require("../controllers/playerController");
 
 // routes
@@ -16,8 +18,8 @@ router.route("/:sId/players/") 		// players
     .get(getSportPlayers)
  
 router.route("/:sId/players/:pId")  // players
-//    .put(updateSportPlayer)
+    .put(updateSportPlayer)
     .get(getPlayerById)
-// 	.delete(delSportPlayer);
-//
+    .delete(removePlayer);
+
 module.exports = router;
