@@ -48,6 +48,15 @@ const updateSportDb = async (sId, updatedSport) => {
     return sport;
 }
 
+const deleteSportDb = async (sId) => {
+    const [sport] = await sql`
+        DELETE FROM sports
+        WHERE id = ${sId}
+        RETURNING *;
+    `
+    return sport;
+}
+
 const isCorrectInp = (inp, validKeys) =>{
 	// Input:
 	// 		inp object
@@ -186,5 +195,5 @@ const writeFile = (data) => {
 }
 
 
-module.exports = {sports, add, upd, del, getSports, insertSport, fetchSport, updateSportDb };
+module.exports = {sports, add, upd, del, getSports, insertSport, fetchSport, updateSportDb, deleteSportDb};
 

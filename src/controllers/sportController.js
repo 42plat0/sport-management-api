@@ -1,5 +1,5 @@
 const {getObjIdxByAttribute} = require("../helpers/filterList.js");
-let {getSports, insertSport, fetchSport, updateSportDb } = require("../models/sportModel.js");
+let {getSports, insertSport, fetchSport, updateSportDb, deleteSportDb } = require("../models/sportModel.js");
 const AppError = require("../utilities/appError");
 
 // Get all sports
@@ -95,18 +95,24 @@ exports.updateSport = async (req, res, next) => {
     }
 }
 
-exports.delSport = (req, res) => {
+exports.delSport = async (req, res, next) => {
     try {    
-        const {sId: id} = req.params;
+        const {sId} = req.params;
+        
+        const deleteSport = await deleteSportDb(sId); 
+        
+        if (!deleteSport){
+            res.status(404).json({
+                status: "failed",
+                message: "Sport by specified id not found"
+            });
+            return;
+        }
+            
 
         res.status(200).json({
             status: "success",
             data: null
-        });
-
-        res.status(404).json({
-            status: "failed",
-            message: "Sport by specified id not found"
         });
 
     } catch (error) {
